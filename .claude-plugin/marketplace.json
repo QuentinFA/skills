@@ -1,0 +1,16 @@
+{
+  "name": "qfa-skills",
+  "owner": {
+    "name": "QuentinFA"
+  },
+  "metadata": {
+    "description": "Self-hosted marketplace for QuentinFA's personal skills."
+  },
+  "plugins": [
+    {
+      "name": "qfa-skills",
+      "source": "./",
+      "description": "Git, review and memory workflow skills: commit, pr, recap, reflect, review-angles, orca-review."
+    }
+  ]
+}
