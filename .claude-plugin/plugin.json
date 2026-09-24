@@ -1,7 +1,7 @@
 {
   "name": "qfa-skills",
   "version": "0.1.0",
-  "description": "Personal Claude Code skills: commit, pr, recap, reflect, review-angles, orca-review.",
+  "description": "Personal Claude Code skills: commit, pr, recap, reflect, review-angles, orca-review, triage-findings.",
   "author": {
     "name": "QuentinFA"
   }

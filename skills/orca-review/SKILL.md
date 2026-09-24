@@ -83,9 +83,13 @@ independently re-derive. Give it the diff and the skill; nothing else.
 Set the timeout to match the review, not to a default — a multi-angle run over a large diff
 takes tens of minutes. A timeout is a checkpoint, not a failure: keep waiting.
 
+If the worker sits idle right after starting, a prompt in its shell (an update check, a
+plugin notice) may have swallowed the first keystroke. Look at the terminal and resend.
+
 ## 3. Debate, one exchange per finding
 
-Read the report. For each finding, answer with exactly one of:
+Read the report, and count the findings from the document, not from the `worker_done`
+summary — the summary is a paraphrase and drops ids. For each finding, answer with exactly one of:
 
 - **accept** — it is right; it stands.
 - **already-fixed** — name the commit. The reviewer read `<sha>`; if it moved, that is your
@@ -105,17 +109,27 @@ that channel with it, so threaded replies after the report lands reach nobody. H
 reviewer answer in the same shape — an unanswered finding then shows up as an id missing from
 the reply, which is what threads would otherwise have told you.
 
+The reviewer's dispatch is settled, so open a fresh one to its terminal and send into that:
+
 ```text
-orca orchestration send --to run:<run_id> --dispatch-id <current_ctx_id> \
+orca orchestration task-create --spec "Debate round" --run <run_id> --json
+orca orchestration dispatch --task <task_id> --to <reviewer_handle> --run <run_id> --json
+orca orchestration send --to dispatch:<new_ctx_id> \
     --subject "Debate round: <n> findings, answer per id" --body "<verdicts>" --json
 orca orchestration check --terminal <your_handle> --wait \
     --types "status,escalation,question" --timeout-ms 900000 --json
 ```
 
-Addressing a settled worker needs an explicit recipient *and* the current dispatch id — the id
-from the settled dispatch is stale, and omitting `--to` sends nothing. `check` names its caller
-with `--terminal`; omit it inside your own Orca terminal. For anything further, see
-`orca skills get orchestration`.
+- **The `send` is what delivers.** `dispatch` without `--inject` only records the dispatch;
+  the reviewer never sees it, and both sides wait on each other.
+- **`--to run:<run_id>` does not reach the reviewer.** It posts to the run's shared inbox, and
+  the coordinator reads its own verdicts back as if they were a reply.
+- **Acknowledge what you have read** with `check --ack <deliveryId>`. `check --wait` returns
+  the oldest unacknowledged batch, so an old `worker_done` otherwise comes back looking new.
+  A run allows one waiter at a time.
+
+`check` names its caller with `--terminal`; omit it inside your own Orca terminal. For anything
+further, see `orca skills get orchestration`.
 
 **One exchange per finding, then it settles or it deadlocks.** Do not run a third round.
 Two models trading arguments converge on whoever spoke last, which feels like agreement and
@@ -146,11 +160,21 @@ Update the findings document in place so it reflects the debate — each finding
 accepted, refuted with the evidence that refuted it, already-fixed with its commit, or
 open-for-decision. A reader picking it up later needs the outcome, not just the claim.
 
-Then release the worker and report: findings count, accepted, refuted, already-fixed, open.
+Then release the worker, close its terminal, and report: findings count, accepted, refuted,
+already-fixed, open.
 
 ```text
 orca orchestration worker-release --dispatch <dispatch_id> --json
+orca terminal close --terminal <reviewer_handle>
+orca terminal list
 ```
+
+`worker-release` leaves the terminal running; confirm it is gone from the list. Keep it open
+only when the user asks — for instance to reflect on the review session before closing it.
+
+**After the findings are fixed, re-review the fix delta.** Fixes made in a batch reintroduce
+earlier defects often enough to plan for: a light pass over `<sha>..HEAD` catches them for
+a fraction of the first round's cost. Offer it; the user decides.
 
 ## Reference files
 

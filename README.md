@@ -19,6 +19,7 @@ CLAUDE.md         instructions for sessions working in this repo
 | `reflect` | Extract durable knowledge from a session into file-based memory, and prune what it disproved. |
 | `review-angles` | Deep multi-angle adversarial review via reviewer subagents, dispatched in priority tiers. |
 | `orca-review` | Review from a separate Orca session that never saw the code, then a bounded debate with the implementing session. |
+| `triage-findings` | Put only the review findings that need the user in front of them, three lines each, then fix batch by batch with tests first. |
 
 ## Install
 

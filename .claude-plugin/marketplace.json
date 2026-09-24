@@ -10,7 +10,7 @@
     {
       "name": "qfa-skills",
       "source": "./",
-      "description": "Git, review and memory workflow skills: commit, pr, recap, reflect, review-angles, orca-review."
+      "description": "Git, review and memory workflow skills: commit, pr, recap, reflect, review-angles, orca-review, triage-findings."
     }
   ]
 }
