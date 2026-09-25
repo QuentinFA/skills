@@ -57,3 +57,20 @@ from `orca terminal list`. It stays open only when the user asks, e.g. to reflec
 
 **Rejected:** leaving teardown to the user — they have to notice it first, and a retained
 worker is easy to miss.
+
+## A reviewer's question is answered with `reply`, not `send`
+
+*2026-09-25 · accepted*
+
+**Issue:** step 2 waits on `question` events but never said how to answer one. A reviewer asked
+whether to run the full fan-out given the diff's size; a `send` to its dispatch was delivered
+but left it blocked in `orchestration ask`, and the review stalled until the answer went through
+`reply` with the question's message id.
+
+**Decision:** step 2 documents `orchestration reply --id <msg> --from <coordinator>`, and that a
+question the user owns (cost, scope) goes to the user before the reply.
+
+**Rejected:** telling the reviewer never to ask. A cost question before a large fan-out is
+worth one round-trip to the user.
+
+**Consequences:** `reply` needs `--from`; without it the call fails `stable_pane_required`.

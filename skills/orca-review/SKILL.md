@@ -86,6 +86,17 @@ takes tens of minutes. A timeout is a checkpoint, not a failure: keep waiting.
 If the worker sits idle right after starting, a prompt in its shell (an update check, a
 plugin notice) may have swallowed the first keystroke. Look at the terminal and resend.
 
+**The reviewer may stop to ask** — a `question` event, often about cost before a large fan-out.
+It is blocked in `orchestration ask` until that message gets a reply; a `send` to its dispatch
+does not unblock it. Anything that is the user's call (cost, scope) goes to the user first. Then:
+
+```text
+orca orchestration reply --id <question_msg_id> --run <run_id> --from <your_handle> \
+    --body "<answer>" --json
+```
+
+Without `--from`, the reply fails with `stable_pane_required`.
+
 ## 3. Debate, one exchange per finding
 
 Read the report, and count the findings from the document, not from the `worker_done`
