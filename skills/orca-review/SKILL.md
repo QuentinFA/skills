@@ -71,7 +71,8 @@ Confirm the runtime, bind one Run, start one worker:
 orca status --json
 orca orchestration run-create --objective "blind review of <target> @ <sha>" --json
 orca orchestration worker-start --spec "<spec>" --worktree current --agent claude --json
-orca orchestration check --wait --types "worker_done,escalation,question" --timeout-ms 3600000 --json
+# then poll until <report path> exists (a question can arrive first: see below), and:
+orca orchestration check --run <run_id> --json
 ```
 
 **The spec is where isolation is won or lost.** It must name the target, the review skill
@@ -80,11 +81,20 @@ explain why the code is shaped the way it is, which findings you expect, or what
 round said. Every sentence of justification you add is a sentence the reviewer will not
 independently re-derive. Give it the diff and the skill; nothing else.
 
-Set the timeout to match the review, not to a default — a multi-angle run over a large diff
-takes tens of minutes. A timeout is a checkpoint, not a failure: keep waiting.
+Size the poll to the review, not to a default — a multi-angle run over a large diff takes
+tens of minutes — and look for a `question` on each pass. A limit reached is a checkpoint, not
+a failure: keep waiting.
 
-If the worker sits idle right after starting, a prompt in its shell (an update check, a
-plugin notice) may have swallowed the first keystroke. Look at the terminal and resend.
+`worker-start` can return `turn_start_unobserved` with the spec still sitting unsent in the
+reviewer's composer (or a shell prompt swallowed the first keystroke). Read the terminal the
+start created (`orca terminal read --terminal <reviewer_handle>`), and if the spec is there
+unsent, submit it with `orca terminal send --terminal <reviewer_handle> --enter`.
+
+**Wait on the report file, not on the event.** `check --wait` returns the oldest unacknowledged
+batch, and messages can arrive with `deliveryId: null`, which cannot be acknowledged: an
+answered question then keeps coming back and hides the `worker_done` behind it. Poll for the
+report path the spec names; once it exists, a plain `check` shows the `worker_done`. A
+`heartbeat` message means the reviewer is still working.
 
 **The reviewer may stop to ask** — a `question` event, often about cost before a large fan-out.
 It is blocked in `orchestration ask` until that message gets a reply; a `send` to its dispatch
@@ -95,7 +105,9 @@ orca orchestration reply --id <question_msg_id> --run <run_id> --from <your_hand
     --body "<answer>" --json
 ```
 
-Without `--from`, the reply fails with `stable_pane_required`.
+Without `--from`, the reply fails with `stable_pane_required`. Your handle is your own
+terminal's: in `orca terminal list --json`, the one in your worktree that the reviewer did not
+create (its title is your session's).
 
 ## 3. Debate, one exchange per finding
 
@@ -135,9 +147,11 @@ orca orchestration check --terminal <your_handle> --wait \
   the reviewer never sees it, and both sides wait on each other.
 - **`--to run:<run_id>` does not reach the reviewer.** It posts to the run's shared inbox, and
   the coordinator reads its own verdicts back as if they were a reply.
-- **Acknowledge what you have read** with `check --ack <deliveryId>`. `check --wait` returns
-  the oldest unacknowledged batch, so an old `worker_done` otherwise comes back looking new.
-  A run allows one waiter at a time.
+- **Acknowledge what you have read** with `check --ack <deliveryId>` when the message has one.
+  `check --wait` returns the oldest unacknowledged batch, so an old `worker_done` otherwise comes
+  back looking new; a message with a null `deliveryId` cannot be acknowledged, which is why the
+  reply is read from the reviewer's terminal or a plain `check` rather than a long wait. A run
+  allows one waiter at a time.
 
 `check` names its caller with `--terminal`; omit it inside your own Orca terminal. For anything
 further, see `orca skills get orchestration`.

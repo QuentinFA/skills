@@ -74,3 +74,25 @@ question the user owns (cost, scope) goes to the user before the reply.
 worth one round-trip to the user.
 
 **Consequences:** `reply` needs `--from`; without it the call fails `stable_pane_required`.
+
+## Wait on the report file, not on `check --wait`
+
+*2026-09-29 · accepted*
+
+**Issue:** step 2 waited with `check --wait --types worker_done,escalation,question`, and step 3
+relied on `check --ack <deliveryId>` to keep old messages from coming back. On three review
+rounds of one PR, every message (the reviewer's question, heartbeats, `worker_done`) arrived with
+`deliveryId: null`. The answered question could not be acknowledged, kept being returned, and
+the coordinator never saw `worker_done`; the user noticed the reviewer had finished first. The
+same session saw `worker-start` stop at `turn_start_unobserved` with the spec unsent.
+
+**Decision:** step 2 waits on the report path the spec names, then reads `worker_done` with a
+plain `check`; acknowledging is kept for messages that carry a delivery id. Step 2 also says how
+to submit an unsent spec and how to find the coordinator's own handle for `--from`.
+
+**Rejected:** relying on `--ack` alone — it is unavailable exactly when it is needed. Filtering
+the wait on `worker_done` only — the stale question still came back first.
+
+**Consequences:** the earlier entries stand; this changes only how the coordinator learns the
+report is in.
+
