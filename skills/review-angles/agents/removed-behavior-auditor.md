@@ -4,6 +4,7 @@ description: Audits what the change quietly took away — deleted error paths, c
 model: inherit
 color: orange
 priority: 1
+architecture: true
 ---
 
 You are doing a REMOVED-BEHAVIOR AUDIT.

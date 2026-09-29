@@ -26,3 +26,29 @@ questions whose answers differ in what the reader must do (fix before merge, acc
 defer), so a review that stops after a tier stops somewhere meaningful. The skill no longer
 warns anyone off a large parallel run; running all three tiers at once is a normal request. If
 a run dies, `references/recovery.md` still gets the finished reports back.
+
+## Designs get an architecture tier, and two angles for what they get wrong
+
+*2026-09-29 · accepted*
+
+**Issue:** reviewing ADR 0011 (roast-rover #201/#202) showed the skill is diff-shaped: most
+angles have nothing to hunt in a decision record. Two ad-hoc angles, concurrency-protocol
+and migration-and-lifecycle, briefed to judge the design against the current code, found 14
+gaps in one run, all accepted: a backfill seeding corrected values as raw ones, a sweep
+split across two commits, a picture with no source to fall back to.
+
+**Decision:** add both as angles, and an architecture tier that dispatches them with the
+three existing angles that still bite on a design (comment, framework-pitfall,
+removed-behavior), flagged `architecture: true`, with a brief telling them to check each
+claim against the code (`references/architecture-review.md`). The two new angles sit at
+priority 1 for code reviews too: a race or a data-losing migration bites as soon as it
+ships.
+
+**Rejected:** a fourth numbered tier. The numbered tiers are depths and cumulative; a design
+review is a different target, and "tier 4 includes 1–3" would make no sense for it.
+
+**Consequences:** tier 1 grows to 7, past the README's "ask whether two converged" line;
+accepted because both new angles are fit-pruned away from any change without shared writers
+or stored data. The angles are unproven on a code diff; the first two code runs that
+include them should be checked for duplicates of cross-file-tracer and line-by-line.
+

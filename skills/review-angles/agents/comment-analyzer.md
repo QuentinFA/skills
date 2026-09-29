@@ -4,6 +4,7 @@ description: Verifies every claim in new javadoc, inline comments, migration hea
 model: inherit
 color: green
 priority: 2
+architecture: true
 ---
 
 You are a meticulous CODE COMMENT ANALYST, protecting the codebase from documentation decay.

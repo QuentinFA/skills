@@ -14,6 +14,8 @@ review-angles/
 │   ├── framework-pitfall-hunter.md
 │   ├── type-design-analyzer.md
 │   ├── removed-behavior-auditor.md
+│   ├── concurrency-protocol-auditor.md
+│   ├── migration-lifecycle-auditor.md
 │   ├── pr-test-analyzer.md
 │   ├── altitude-analyzer.md
 │   ├── comment-analyzer.md
@@ -24,14 +26,15 @@ review-angles/
 └── references/
     ├── shared-contract.md       target + output block appended to every angle
     ├── recovery.md              stopping a run, salvaging a dead one, resuming
-    └── handoff.md               structure for a standalone findings document
+    ├── handoff.md               structure for a standalone findings document
+    └── architecture-review.md   brief for reviewing a design instead of code
 ```
 
 The agent file format matches `anthropics/claude-code`'s `plugins/pr-review-toolkit`, so any
 angle here can be promoted to a first-class agent or shipped as a plugin by copying the file
 — no rewriting. They live inside the skill rather than in `~/.claude/agents/` deliberately:
 agents in that directory are listed in every session in every project, and fourteen of them
-is a permanent context cost for a tool used occasionally.
+is a permanent context cost for a tool used occasionally — sixteen now.
 
 ## Adding an angle
 
@@ -50,7 +53,9 @@ You are ... <instructions to the reviewer>
 ```
 
 Add `runtime-checklist: true` if the angle must derive its checklist from the detected stack
-or the repo's own docs rather than shipping a fixed one.
+or the repo's own docs rather than shipping a fixed one, and `architecture: true` if it still
+finds something in a design — a decision record or design doc — judged against the current
+code (see `references/architecture-review.md`).
 
 Nothing else needs editing — `SKILL.md` discovers the directory.
 
@@ -78,8 +83,16 @@ Two placement traps worth knowing:
   protects a bug from future reviewers, which is why `comment-analyzer` sits at 2 rather
   than with house style.
 
-Current spread is 5 / 5 / 4, which is also the dispatch shape: one tier per batch. If a tier
-drifts much past six, it is worth asking whether two of its angles have converged.
+Current spread is 7 / 5 / 4, which is also the dispatch shape: one tier per batch. If a tier
+drifts much past six, it is worth asking whether two of its angles have converged. Tier 1 is
+past it on purpose: concurrency-protocol and migration-lifecycle hunt what they alone hunt,
+but only a change with shared writers or stored data gives them anything, so fit leaves
+them out of most runs.
+
+The **architecture** flag is not a tier of its own depth. It marks the five angles —
+concurrency-protocol, migration-lifecycle, comment, framework-pitfall, removed-behavior —
+that still have a quarry in a design, and it is selected by the kind of change, not by how
+deep the review goes.
 
 ## What makes an angle earn its slot
 

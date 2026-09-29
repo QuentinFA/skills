@@ -1,6 +1,6 @@
 ---
 name: review-angles
-description: Run a deep multi-angle adversarial code review of a PR, branch, or diff using independent reviewer subagents, dispatched in priority tiers so the defects that bite in production land before the ones that merely tidy. Use this whenever the user wants a thorough, rigorous, or adversarial review — phrases like "review this PR properly", "deep review", "multi-angle review", "tear this apart", "what did we miss", "review before merge" — or asks for a depth ("quick pass", "just the correctness angles", "the full thing", "tier by tier"). Also use it when a previous review died partway and needs resuming or salvaging.
+description: Run a deep multi-angle adversarial code review of a PR, branch, or diff using independent reviewer subagents, dispatched in priority tiers so the defects that bite in production land before the ones that merely tidy. Use this whenever the user wants a thorough, rigorous, or adversarial review — phrases like "review this PR properly", "deep review", "multi-angle review", "tear this apart", "what did we miss", "review before merge" — or asks for a depth ("quick pass", "just the correctness angles", "the full thing", "tier by tier"). Also use it to review a design before it is built — a new or amended decision record (ADR) or design doc — and when a previous review died partway and needs resuming or salvaging.
 ---
 
 # Multi-angle review
@@ -20,11 +20,17 @@ answers differ in what the reader has to *do* about them:
 
 | Tier | Angles | Question it answers | What the answer demands |
 |---|---|---|---|
-| 1 | 5 | Will this break in production? | Fix before merge. |
+| 1 | 7 | Will this break in production? | Fix before merge. |
 | 2 | 5 | Is it built right? | Fix, or accept knowingly. |
 | 3 | 4 | Is it clean? | Batch, defer, or decline. |
 
 The tiers are cumulative: tier 2 means 1+2, tier 3 means all of them.
+
+The **architecture tier** is on another axis: it is chosen by *what* is under review, not
+how deep. When the change is a design — a decision record or a design doc — dispatch the
+five angles flagged `architecture: true` instead, briefed to judge the design against the
+code it will change. It answers "Will this design hold?", and its findings are amended in
+the design before anyone builds it. See `references/architecture-review.md`.
 
 **One tier at a time is the default**, because it keeps those three conversations apart. A
 tier-1 list is short and every item on it is actionable now; the same findings mixed in with
@@ -66,8 +72,9 @@ Absent that, propose one from the change: tier 1 for a hotfix or a small targete
 tier 2 for most feature work, tier 3 when they want it exhaustive.
 
 **Fit** then prunes within the chosen tiers. A pure refactor doesn't need the security
-angle; a docs-only PR needs almost none of them. Six relevant angles beat fourteen run out
-of completeness.
+angle; a change with no shared state and no stored data doesn't need the concurrency or the
+migration angle; a docs-only PR needs almost none of them — unless the docs are a design,
+which takes the architecture tier. Six relevant angles beat sixteen run out of completeness.
 
 Two angles build their checklist at runtime rather than shipping one — they carry
 `runtime-checklist: true` in frontmatter. Give them the detected stack and point them at
@@ -78,10 +85,11 @@ the repo's own convention docs; a generic version of either is close to worthles
 Present the tiers and **wait for approval before running anything**.
 
 ```
-14 angles, 3 tiers. Diff: 3,340 lines / 57 files.
+16 angles, 3 tiers. Diff: 3,340 lines / 57 files.
 
   T1  breaks in production   line-by-line · silent-failure · cross-file ·
-                             boundary-security · removed-behavior
+                             boundary-security · removed-behavior ·
+                             concurrency-protocol · migration-lifecycle
   T2  built right            framework-pitfall · type-design · pr-test ·
                              comment · altitude
   T3  clean                  convention · efficiency · reuse · simplification
@@ -177,3 +185,5 @@ needs editing. See `README.md` for what makes an angle earn its slot.
   when that happens, not before.
 - `references/handoff.md` — structure for the standalone findings document. Read before
   writing it, which is every run.
+- `references/architecture-review.md` — the brief for reviewing a design rather than code.
+  Read when the target is a decision record or design doc.

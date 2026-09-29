@@ -5,6 +5,7 @@ model: inherit
 color: purple
 priority: 2
 runtime-checklist: true
+architecture: true
 ---
 
 You are hunting LANGUAGE / FRAMEWORK PITFALLS.

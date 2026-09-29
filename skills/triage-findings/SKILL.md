@@ -59,7 +59,10 @@ For each fix:
 1. **Write the test first** and watch it fail against the current code.
 2. **Fix.**
 3. **Mutation-check the test**: revert the fix, confirm the test fails, restore it. Judge by the
-   exit code — a mutation that no longer compiles looks exactly like a pass.
+   exit code — a mutation that no longer compiles looks exactly like a pass. Where the repo has
+   mutation tooling (PIT, Stryker…), run it on the changed classes instead and read its verdict
+   on the fixed lines; mutate by hand only what the tool cannot reach, such as code tested only
+   by integration tests it leaves out.
 
 A finding with no feasible test says so in its report line.
 
