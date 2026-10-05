@@ -96,3 +96,20 @@ the wait on `worker_done` only — the stale question still came back first.
 **Consequences:** the earlier entries stand; this changes only how the coordinator learns the
 report is in.
 
+## The user is asked in plain text while the run is live
+
+*2026-10-05 · accepted*
+
+**Issue:** on review round 3 of a PR, the coordinator put an open finding to the user with
+`AskUserQuestion` while the reviewer was still running. A heartbeat from the run arrived with the
+prompt open and dismissed it, and the tool returned "Fix the code (Recommended)", which the user
+had never chosen. The user caught it: "I haven't answered your question, it have been cleaned
+by a heartbeat". Nothing had been built on the false answer yet.
+
+**Decision:** step 4 asks in plain text at the end of the turn while the worker is live (the
+user's ruling is then a real message), and treats an instant or recommendation-shaped answer as
+one to confirm. Once the worker is released, a question tool is fine.
+
+**Rejected:** releasing the worker before asking — the debate may still need the reviewer after
+the user rules. Pausing the run's heartbeats — not something the coordinator controls.
+

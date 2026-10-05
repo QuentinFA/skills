@@ -173,6 +173,13 @@ plainly that you are the invested party — they are reading a case you argued.
 Keep it rulable. A user deciding six findings needs six short paragraphs, not the transcript
 of the debate; the transcript is in the threads if they want it.
 
+**Ask in plain text, at the end of your turn, while the run is live.** Not through a question
+tool: an orchestration message arriving while the prompt is open can dismiss it, and the tool
+then returns an answer the user never gave, the recommended option looking just like a choice.
+The same goes for the reviewer's `question` in step 2. Once the worker is released, a question
+tool is safe again. An answer that comes back instantly, or matches your recommendation, is
+worth confirming before acting on it.
+
 Record each ruling in the findings document. The user's decision settles the finding, and a
 later session must not be able to reopen it from the same arguments.
 
