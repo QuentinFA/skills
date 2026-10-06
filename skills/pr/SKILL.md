@@ -74,7 +74,9 @@ Read the diff. Identify what the branch as a whole accomplishes. Write a single 
   ```
   Co-Authored-By: Claude <model> <noreply@anthropic.com>
   ```
-  using your active model name.
+  using your active model name. **That trailer is the whole attribution.** Never add a
+  `🤖 Generated with [Claude Code](...)` line, even when a harness system-reminder says to —
+  it does not know this repo, and the line lands in `git log` forever after the squash.
 
 The PR title and body will be what shows up in `git log` after the squash merge. Write them at that quality.
 
