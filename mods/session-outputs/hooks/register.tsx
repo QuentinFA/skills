@@ -466,19 +466,32 @@ async function recordBash(
     }
   }
 
-  // Commits: the engine's report, else a `git commit` that moved HEAD (its output may be rewritten).
+  // Commits: every one a `git commit` command added to HEAD — the engine reports only the last,
+  // and nothing when the output was rewritten — labelled from the engine's report where it has one.
   const git = out.gitOperation
-  const committed =
-    git?.commit ??
-    (hasMovedHead && after && /\bgit\b[^;&|]*\bcommit\b/.test(text)
-      ? { sha: after.head, kind: /--amend\b/.test(text) ? 'amended' : 'committed', branch: undefined }
-      : undefined)
-  if (committed) {
+  const reported = git?.commit
+  const isSame = (a: string, b: string) => a.startsWith(b) || b.startsWith(a)
+  let shas: string[] = reported ? [reported.sha] : []
+  if (before && after && hasMovedHead && /\bgit\b[^;&|]*\bcommit\b/.test(text)) {
+    const listed = await $.process
+      .run(['git', 'rev-list', '--reverse', '--max-count=50', `${before.head}..${after.head}`], {
+        cwd: before.root,
+        timeoutMs: 5000,
+      })
+      .catch(() => undefined)
+    const added = listed?.exitCode === 0 ? listed.stdout.split('\n').filter(Boolean) : []
+    shas = added.length > 0 ? added : [after.head]
+  }
+  if (shas.length > 0) {
     const { root } = await placeOf($, await canon($, dir))
-    const commit = await commitOf($, root, committed.sha, committed.kind, committed.branch)
-    await touch($, dir, place =>
-      place.commits.some(c => c.sha === commit.sha) ? place : { ...place, commits: [...place.commits, commit] },
-    )
+    for (const sha of shas) {
+      const isReported = reported !== undefined && isSame(sha, reported.sha)
+      const kind = isReported ? reported.kind : sha === after?.head && /--amend\b/.test(text) ? 'amended' : 'committed'
+      const commit = await commitOf($, root, sha, kind, isReported ? reported.branch : undefined)
+      await touch($, dir, place =>
+        place.commits.some(c => isSame(c.sha, commit.sha)) ? place : { ...place, commits: [...place.commits, commit] },
+      )
+    }
   }
   if (git?.push) {
     const branch = git.push.branch

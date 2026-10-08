@@ -14,6 +14,8 @@ type Repo = {
   numstat?: string
   others?: string
   subjects?: Record<string, string>
+  /** What `git rev-list before..after` answers. */
+  revList?: string
 }
 
 type BashOutcome = {
@@ -91,6 +93,7 @@ function host(on: On, repos: Repo[], bash: (command: string) => BashOutcome = ()
       return repo.remote ? ok(`${repo.remote}\n`) : run(2, '')
     }
     if (line === 'diff --numstat HEAD') return ok(repo.numstat ?? '')
+    if (line.startsWith('rev-list --reverse --max-count=50 ')) return ok(repo.revList ?? '')
     if (line === 'ls-files --others --exclude-standard') return ok(repo.others ?? '')
     if (line.startsWith('show --numstat --format=%s ')) {
       const sha = args.at(-1) ?? ''
@@ -193,6 +196,27 @@ describe('git', () => {
 
     expect(recorded().places[0]?.commits).toEqual([
       { sha: 'bbbbbbb', subject: 'fix: the thing', kind: 'committed', files: [{ path: 'README.md', added: 1, removed: 0 }] },
+    ])
+  })
+
+  test('records every commit a command makes, not only the one the engine reports', async ($, on) => {
+    const repo: Repo = {
+      root: '/work/app',
+      head: 'aaaaaaa1',
+      subjects: { bbbbbbb2: 'mod: add it', ccccccc3: 'skill: route to it' },
+    }
+    const recorded = host(on, [repo], () => ({
+      gitOperation: { commit: { sha: 'ccccccc', kind: 'committed', branch: 'feat/x' } },
+      effect: () => {
+        repo.head = 'ccccccc3'
+        repo.revList = 'bbbbbbb2\nccccccc3\n'
+      },
+    }))
+    await $.tool.call({ tool: 'Bash', command: 'git commit -m one && git add b && git commit -m two' })
+
+    expect(recorded().places[0]?.commits.map(c => [c.sha, c.subject, c.branch])).toEqual([
+      ['bbbbbbb', 'mod: add it', undefined],
+      ['ccccccc', 'skill: route to it', 'feat/x'],
     ])
   })
 

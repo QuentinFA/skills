@@ -67,6 +67,11 @@ number. A `gh` write whose command exited with an error is still recorded, marke
 
 **Rejected:** parsing command output — it is exactly what the rewriting hook changes.
 
+**Consequences:** the engine reports one commit per command — the last. A command that commits
+more than once had its earlier commits dropped, so when a `git commit` command moved HEAD, every
+commit between the HEAD before and after it is recorded, the engine's report labelling the one it
+names.
+
 ## How a command's directory is read
 
 *2026-10-08 · accepted*
