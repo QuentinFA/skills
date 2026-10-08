@@ -1,10 +1,12 @@
 # skills
 
-Personal Claude Code skills, installable as a plugin, with skills.sh, or by symlink.
+Personal Claude Code skills, installable as a plugin, with skills.sh, or by symlink — and mods,
+loaded from their folder.
 
 ```
 .claude-plugin/   plugin + self-hosted marketplace manifests
 skills/           one directory per skill: SKILL.md, DECISIONS.md, supporting files
+mods/             one directory per mod: a plugin of function hooks, DECISIONS.md, tests
 install.sh        symlinks them into ~/.claude/skills
 CLAUDE.md         instructions for sessions working in this repo
 ```
@@ -20,6 +22,15 @@ CLAUDE.md         instructions for sessions working in this repo
 | `review-angles` | Deep multi-angle adversarial review via reviewer subagents, dispatched in priority tiers. |
 | `orca-review` | Review from a separate Orca session that never saw the code, then a bounded debate with the implementing session. |
 | `triage-findings` | Put only the review findings that need the user in front of them, three lines each, then fix batch by batch with tests first. |
+
+## Mods
+
+A mod is code Claude Code runs on events — panes, status lines, hooks that watch or guard tool
+calls — with no model in the loop. Each one is its own plugin folder; see its README to load it.
+
+| mod | what it does |
+| --- | --- |
+| [`session-outputs`](mods/session-outputs) | Pane of everything a session used and produced, by directory and across repos: commands, reads, edits, branches, commits, PRs. |
 
 ## Install
 
@@ -66,9 +77,15 @@ for triggering, not for documentation.
 Reference bundled files relative to the skill's own directory rather than `~/.claude/skills/...`
 — that path only exists under the symlink install, not under a plugin or skills.sh install.
 
+## Adding a mod
+
+Create `mods/<name>/` with `.claude-plugin/plugin.json`, `hooks/hooks.json` and the hooks module,
+plus a `DECISIONS.md`. Check it with `claude plugin validate mods/<name>` and
+`claude plugin test mods/<name>`.
+
 ## Decisions
 
-Each skill carries a `DECISIONS.md` of small ADRs: one entry per issue raised against the skill
+Each skill and each mod carries a `DECISIONS.md` of small ADRs: one entry per issue raised against the skill
 and settled. When something about a skill looks wrong, check its file first. If the issue has
 come up before, the answer and its reasoning are there, and it doesn't need deciding again.
 
