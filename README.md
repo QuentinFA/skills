@@ -8,6 +8,7 @@ loaded from their folder.
 skills/           one directory per skill: SKILL.md, DECISIONS.md, supporting files
 mods/             one directory per mod: a plugin of function hooks, DECISIONS.md, tests
 install.sh        symlinks them into ~/.claude/skills
+docs/             commit conventions
 CLAUDE.md         instructions for sessions working in this repo
 ```
 

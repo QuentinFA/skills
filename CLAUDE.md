@@ -14,6 +14,9 @@ ADRs.
 - **A mod's tests run with `claude plugin test mods/<name>`**; run them before committing a change
   to it.
 
+Commits and PR titles follow `docs/commit-conventions.md`: `<scope> (<type>): <description>`,
+where the scope is a skill, a mod, or `repo`.
+
 Reference a skill's bundled files relative to its own directory, never through
 `~/.claude/skills/...` — that path only exists under the symlink install.
 
