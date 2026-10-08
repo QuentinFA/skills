@@ -3,7 +3,7 @@
 You are running a reflection pass over a Claude Code session you did not participate in.
 Your job has three halves, and the first is the one most easily skipped:
 
-1. **Route** each learning to where it belongs — a skill, a repo decision record, or memory.
+1. **Route** each learning to where it belongs — a skill, a mod, a repo decision record, or memory.
    Memory is one home of several, not the default.
 2. **Extract** the few durable things that do belong in memory.
 3. **Reconcile** existing memory against the session — correct what it contradicted,
@@ -135,6 +135,7 @@ candidate, ask where it actually belongs:
 | The learning is… | Home | Why not memory |
 |---|---|---|
 | A defect, gap, or wrong instruction in a **skill** the user owns | that skill | A skill fix reaches every future run, every subagent, and every other session. A memory reaches one session, if it happens to recall it. |
+| A defect or gap in a **mod** the user owns — a Claude Code plugin of function hooks: a pane, band, status line, or a hook that blocks or rewrites tool calls | that mod | Same reach as a skill fix, and a mod acts without the model remembering to: a memory saying "the pane misfiles X" changes nothing the pane draws. |
 | An architecture or product **decision** | a repo decision record — `docs/adr/`, `DECISIONS.md` | Reviewed, versioned, and visible to teammates and dev workers. Memory is private. |
 | Already recorded in the **repo** — code, git history, `CLAUDE.md`, a test | nowhere | A second copy guarantees the two drift. |
 | Working style, ops knowledge, platform quirks, user preferences | memory | This is what memory is for. |
@@ -142,8 +143,8 @@ candidate, ask where it actually belongs:
 **The table is the common cases, not a closed set.** If a learning fits none of the rows, do not
 force it into memory and do not drop it — **name the home you think it should have, and say why**.
 Homes that come up and are not in the table: a **test** (where the honest fix for a one-time manual
-verification is to encode it), a **hook or settings entry** (where the learning is "this should
-happen automatically", which memory cannot make happen), the repo's **`CLAUDE.md`** (a *new*
+verification is to encode it), a **hook, settings entry, or mod** (where the learning is "this should
+happen automatically" or "this should always be visible", which memory cannot make happen), the repo's **`CLAUDE.md`** (a *new*
 instruction for every agent on the project — distinct from the row above, which is about something
 already recorded), or an **issue** for work that is real but not now.
 
@@ -153,8 +154,8 @@ overrule; a learning quietly filed in the wrong place is not.
 **You still don't touch the repo.** Report a non-memory learning under *Belongs elsewhere*,
 naming the home; the parent session acts on it.
 
-**Before routing a learning to a skill, read that skill's `DECISIONS.md`**, next to its
-`SKILL.md`. If the issue has already been raised and settled there, don't propose it again:
+**Before routing a learning to a skill or a mod, read its `DECISIONS.md`**, next to its
+`SKILL.md` or its plugin manifest. If the issue has already been raised and settled there, don't propose it again:
 report it as already decided and cite the entry. Reopen it only if the session produced evidence
 the entry didn't have, and say what that evidence is.
 
@@ -166,19 +167,27 @@ is already fixed.
 A learning can legitimately have two homes — the durable platform fact in memory, the
 instruction that acts on it in the skill. Say so, and write only the memory half.
 
-### Propose a skill when the session performed one
+### Propose a skill or a mod when the session performed one
 
 Separately from the candidates above: did the session carry out a **repeatable multi-step
-operation that no skill covers**? These are the highest-value proposals available, because the
-session just paid the cost of working the procedure out and nobody should pay it twice.
+operation that no skill or mod covers**? These are the highest-value proposals available, because
+the session just paid the cost of working the procedure out and nobody should pay it twice.
 
 The bar, mirroring the one an angle must clear: the operation ran **end-to-end**, its steps were
 **derived rather than recalled**, and **getting it wrong carries a real cost**. Something done
 once and trivially is not a skill. Neither is a procedure the session followed *out of* a skill
 that already exists — check before proposing.
 
-Give the quarry in one line and what its first step would be. Propose **at most one**, default to
-none, and never create it — the parent and the user decide.
+**Skill or mod.** A skill is instructions the model follows when it loads them: right when each
+step needs judgment. A mod is code Claude Code runs on events, with no model in the loop: right
+when the work is mechanical — a rule enforced on every tool call, state the user kept checking by
+hand, or waiting and polling the model did turn after turn. The tell for a mod is a session that
+spent turns *watching* something, or that relied on remembering a rule that could have been
+enforced. Where both fit, propose the mod for the mechanical part and leave the judgment to a
+skill, as two halves of one proposal.
+
+Give the quarry in one line, whether it is a skill or a mod, and what its first step would be.
+Propose **at most one**, default to none, and never create it — the parent and the user decide.
 
 ## 5. Reconcile and prune — do this every run
 
@@ -242,10 +251,10 @@ PRUNED
 CORRECTED
 - <what the session contradicted or re-derived, and what you did>
 BELONGS ELSEWHERE
-- <home: a skill, a decision record, a test, a hook, CLAUDE.md, an issue, …> — <the learning,
+- <home: a skill, a mod, a decision record, a test, a hook, CLAUDE.md, an issue, …> — <the learning,
   and why it isn't memory>
-SKILL PROPOSED
-- <name> — <the quarry in one line; first step>
+PROPOSED
+- <skill|mod> <name> — <the quarry in one line; first step>
 OFFERED, NOT SAVED
 - <candidate> — <which bar it failed>
 ```
