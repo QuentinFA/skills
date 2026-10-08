@@ -26,7 +26,8 @@ CLAUDE.md         instructions for sessions working in this repo
 ## Mods
 
 A mod is code Claude Code runs on events — panes, status lines, hooks that watch or guard tool
-calls — with no model in the loop. Each one is its own plugin folder; see its README to load it.
+calls — with no model in the loop. Each one is its own plugin folder, which `install.sh` lists in
+`env.CLAUDE_CODE_PLUGIN_DIRS` of `~/.claude/settings.json`.
 
 | mod | what it does |
 | --- | --- |
@@ -38,14 +39,18 @@ calls — with no model in the loop. Each one is its own plugin folder; see its 
 
 Each skill is symlinked into `~/.claude/skills`, so an edit in the repo takes effect in the next
 session with no sync step, and skills keep their bare names (`/commit`, not `/qfa-skills:commit`).
+Each mod's folder is added to `env.CLAUDE_CODE_PLUGIN_DIRS` in `~/.claude/settings.json`, where
+Claude Code loads and watches it, so a mod's edits are live too. That step needs `jq`.
 
 ```bash
 ./install.sh --dry-run   # show what would change
 ./install.sh             # link
 ```
 
-It never clobbers a real file or directory, and re-points its own stale symlinks only with
-`--force`.
+It never clobbers a real file or directory or drops another plugin dir, and re-points its own
+stale symlinks, or a mod listed from another checkout, only with `--force`.
+
+The plugin and skills.sh installs below carry the skills only; mods come from `install.sh`.
 
 ### Plugin
 

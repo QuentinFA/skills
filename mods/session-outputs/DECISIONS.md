@@ -125,3 +125,23 @@ call it is observing.
 
 **Decision:** each recorder is caught inside its hook, and each hook is registered with a `.catch`
 that replays the call's result. A failed recording loses that entry, never the tool call.
+
+## Installed through `CLAUDE_CODE_PLUGIN_DIRS`
+
+*2026-10-08 · accepted*
+
+**Issue:** how the repo installs a mod, beside skills it symlinks into `~/.claude/skills`.
+
+**Decision:** `install.sh` adds the mod's folder in the repo to `env.CLAUDE_CODE_PLUGIN_DIRS` in
+`~/.claude/settings.json`. Claude Code loads and watches every listed folder, so edits in the repo
+are live, as symlinked skills are. The script keeps every other entry, writes the file in place so
+a symlinked `settings.json` stays one, and replaces the same mod listed from another checkout only
+with `--force`, since both would load.
+
+**Rejected:** symlinking it into a skills folder — a plugin under `.claude/skills/<name>` is
+described as auto-loaded, but a headless test from a project's skills folder did not load it. A
+marketplace entry — not tested for a mod, and a plugin install copies the folder, so edits would
+not be live.
+
+**Consequences:** the install step needs `jq`, and a headless `claude -p` also needs
+`CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`.

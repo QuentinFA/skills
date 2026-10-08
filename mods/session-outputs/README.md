@@ -29,17 +29,14 @@ as markdown.
 
 ## Install
 
-Mods are early access and load from a plugin folder:
+Mods are early access and load from a plugin folder. The repo's `install.sh` adds this one to
+`env.CLAUDE_CODE_PLUGIN_DIRS` in `~/.claude/settings.json`, for every session. For one session:
 
 ```bash
 claude --plugin-dir /path/to/skills/mods/session-outputs
 ```
 
-or, for every session, in `~/.claude/settings.json`:
-
-```json
-{ "env": { "CLAUDE_CODE_PLUGIN_DIRS": "/path/to/skills/mods/session-outputs" } }
-```
+A headless `claude -p` also needs `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`.
 
 ## Develop
 
