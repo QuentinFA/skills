@@ -1,7 +1,0 @@
-{
-  "name": "session-outputs",
-  "version": "0.1.0",
-  "description": "Everything this session used and produced, by directory and across repos: commands, reads, edits, branches, commits, GitHub, services",
-  "author": { "name": "QuentinFA" },
-  "types": "./types/index.d.ts"
-}
