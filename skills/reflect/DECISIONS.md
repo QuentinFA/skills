@@ -60,3 +60,29 @@ memory bars exist to prevent, one level up. The default is none.
 
 **Consequences:** tested on the session that prompted this entry, the rule proposed nothing and
 routed its best candidate into `commit` as an addition rather than a new skill.
+
+## Mods are a routing home and a kind of proposal
+
+*2026-10-08 · accepted*
+
+**Issue:** Claude Code mods — plugins of function hooks that draw panes, bands and status lines,
+and block or rewrite tool calls — run on events with no model in the loop. Reflection had no
+route for them. A learning of the form "this should run without the model" could only land
+under "a hook or settings entry", a defect in a mod the user owns had no row, and the one
+proposal a pass may make could only be a skill. Yet the clearest mod candidates are mechanical
+work a session does by hand turn after turn: polling for a file, re-checking branch and PR
+state, enforcing a rule by remembering it.
+
+**Decision:** a mod is a routing home with its own row, and its `DECISIONS.md` is read before
+routing to it, as a skill's is. The single proposal may be a skill or a mod: a mod when the
+work is mechanical, a skill when each step needs judgment, and both halves of one proposal when
+an operation has both. The parent's seed brief names mechanical work it did by hand and the mods
+involved in the session.
+
+**Rejected:** a separate quota for mod proposals — it doubles the surface for the over-proposing
+this skill guards against. Folding mods into "a hook or settings entry" — a settings hook is a
+shell command with no state or drawing, while a mod has its own code, tests and decision record,
+so a defect in one has to be routed to it by name. Inferring mechanical work from the transcript
+alone — for the same reason as operations: polling and re-checking look like ordinary tool calls.
+
+**Consequences:** not yet exercised on a real reflection pass.

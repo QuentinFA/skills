@@ -63,6 +63,11 @@ Pass all five. Items 3–5 are the ones only you can supply:
      rather than recalled from a skill. The agent reads a transcript and cannot tell those
      apart — it sees you performing the steps either way — so if you don't name them, the
      skill proposal it owes you has nothing to work from.
+   - **Mechanical work you did by hand.** Waiting on or polling something, re-checking the
+     same state, a rule you enforced only by remembering it. That is what a mod does without
+     a model; the agent sees ordinary tool calls and cannot tell them apart from real work.
+   - **Mods involved this session** — written, changed, or seen misbehaving — with their
+     folders, so a defect is routed to the mod rather than into memory.
    - **The last turn or two, in full.** The transcript on disk lags the live session —
      a message the user sent moments ago is very likely not written yet, and you are the
      only source for it. Corrections arrive late; this is where they'll be.
@@ -83,13 +88,13 @@ own context — and tell the user the reflection ran without transcript backing.
 ## Relay the result
 
 The agent's report never reaches the user on its own. Relay it, keeping its shape:
-**Saved / Updated / Pruned / Corrected / Belongs-elsewhere / Skill-proposed /
+**Saved / Updated / Pruned / Corrected / Belongs-elsewhere / Proposed (skill or mod) /
 Offered-not-saved**, one line each with the filename. Keep it short.
 
 Three parts to surface rather than trim:
 
-- **Belongs elsewhere** — the learnings whose home is a skill, a decision record, a test, a
-  hook, or something the agent had to name for itself. These are the only ones the user can
+- **Belongs elsewhere** — the learnings whose home is a skill, a mod, a decision record, a
+  test, a hook, or something the agent had to name for itself. These are the only ones the user can
   act on *today*, and the agent is barred from acting on them itself, so trimming this
   section strands the work. A skill defect left in memory keeps costing every future run.
 - **Corrected and Pruned** — a session that contradicted stored memory is the most

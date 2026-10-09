@@ -6,6 +6,7 @@ Personal Claude Code skills, installable as a plugin, with skills.sh, or by syml
 .claude-plugin/   plugin + self-hosted marketplace manifests
 skills/           one directory per skill: SKILL.md, DECISIONS.md, supporting files
 install.sh        symlinks them into ~/.claude/skills
+docs/             commit conventions
 CLAUDE.md         instructions for sessions working in this repo
 ```
 

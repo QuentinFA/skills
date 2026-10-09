@@ -11,6 +11,9 @@ Each skill in `skills/<name>/` carries a `DECISIONS.md` of small ADRs.
 - **Supersede, don't delete.** Mark the old entry `superseded` and point to the one replacing it.
 - A new skill gets a `DECISIONS.md` with the standard header and no entries.
 
+Commits and PR titles follow `docs/commit-conventions.md`: `<scope> (<type>): <description>`,
+where the scope is a skill or `repo`.
+
 Reference a skill's bundled files relative to its own directory, never through
 `~/.claude/skills/...` — that path only exists under the symlink install.
 
