@@ -139,19 +139,21 @@ orca orchestration task-create --spec "Debate round" --run <run_id> --json
 orca orchestration dispatch --task <task_id> --to <reviewer_handle> --run <run_id> --json
 orca orchestration send --to dispatch:<new_ctx_id> \
     --subject "Debate round: <n> findings, answer per id" --body "<verdicts>" --json
-orca orchestration check --terminal <your_handle> --wait \
-    --types "status,escalation,question" --timeout-ms 900000 --json
+# then, every minute or two, until every id has an answer:
+orca terminal read --terminal <reviewer_handle>
+orca orchestration check --run <run_id> --json
 ```
 
 - **The `send` is what delivers.** `dispatch` without `--inject` only records the dispatch;
   the reviewer never sees it, and both sides wait on each other.
 - **`--to run:<run_id>` does not reach the reviewer.** It posts to the run's shared inbox, and
   the coordinator reads its own verdicts back as if they were a reply.
-- **Acknowledge what you have read** with `check --ack <deliveryId>` when the message has one.
-  `check --wait` returns the oldest unacknowledged batch, so an old `worker_done` otherwise comes
-  back looking new; a message with a null `deliveryId` cannot be acknowledged, which is why the
-  reply is read from the reviewer's terminal or a plain `check` rather than a long wait. A run
-  allows one waiter at a time.
+- **Read the reply; don't wait for it.** `check --wait` returns the oldest unacknowledged batch,
+  so the reviewer's `worker_done` comes back looking new, and a message with a null `deliveryId`
+  cannot be acknowledged out of the way. The reply lands in the reviewer's terminal, and in a
+  plain `check` as a `status` message. Never pick it out by its wording: it is phrased however
+  the reviewer chose, and a keyword filter that misses it leaves you waiting on a reply that has
+  already arrived. Acknowledge with `check --ack <deliveryId>` what has one.
 
 `check` names its caller with `--terminal`; omit it inside your own Orca terminal. For anything
 further, see `orca skills get orchestration`.

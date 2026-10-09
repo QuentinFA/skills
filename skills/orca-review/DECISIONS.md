@@ -113,3 +113,20 @@ one to confirm. Once the worker is released, a question tool is fine.
 **Rejected:** releasing the worker before asking — the debate may still need the reviewer after
 the user rules. Pausing the run's heartbeats — not something the coordinator controls.
 
+## The debate reply is read from the reviewer's terminal
+
+*2026-10-08 · accepted*
+
+**Issue:** step 3's code block waited with `check --wait --types …` while the bullet below it
+said to read the reply from the reviewer's terminal or a plain `check`. On PR #249 round 1 the
+coordinator polled `check` and picked the reply out with a keyword filter on its body; the reply
+had arrived, phrased otherwise, and the user had to interrupt: "Are you stuck? Looks like you're
+waiting on the reviewer, but the reviewer is not doing anything." Round 2, reading the
+reviewer's terminal, worked.
+
+**Decision:** the code block reads the reviewer's terminal and a plain `check` every minute or
+two until every id has an answer, and the bullet forbids picking the reply out by its wording.
+
+**Rejected:** a `--wait` on `status` messages: the stale `worker_done` and unacknowledgeable
+messages come back first, as the step-2 entry found for the report.
+
