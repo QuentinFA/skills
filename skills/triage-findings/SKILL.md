@@ -15,7 +15,10 @@ without asking.**
 
 ## 1. Sort the findings
 
-Read them from the findings document itself, by id. For each one, before anything else,
+Read them from the findings document itself, by id. If none was named, look for the newest
+`<target>@<sha>.md` for this branch in `$(git rev-parse --git-common-dir)/reviews/`, where
+review documents go to stay out of the working tree. Leave the document wherever it is when
+you update it. For each one, before anything else,
 **search the codebase for an existing answer**: a test that pins the behaviour, a decision
 record, a comment explaining the shape, a helper that already does the right thing. A finding
 the code already answers is usually either wrong or a one-line fix with a known shape.

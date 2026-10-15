@@ -50,6 +50,7 @@ as a suggestion rather than an instruction, and let the owner decide.
 
 ## Placement
 
-Put it where it will survive. A file in the repo root is easy to lose to a clean checkout
-and invisible to anyone who does not already know it exists; if the findings matter beyond
-this session, commit it or say plainly that it is untracked and why that is a risk.
+`SKILL.md` fixes the path: `<git-common-dir>/reviews/<target>@<sha7>.md`. Don't choose
+another unless the invocation names one. A copy in the working tree shows up in every
+`git status` and diff until someone deletes or commits it by mistake. Since nobody will
+browse to the default location, always give the absolute path when handing the document off.

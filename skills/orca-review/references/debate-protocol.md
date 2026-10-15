@@ -9,7 +9,8 @@ wrong. Neither is a reliable judge alone; the exchange is what separates them.
 
 The reviewer is a dispatched worker and must be told, in its spec:
 
-- Produce findings with **stable ids** and a **document at the report path**.
+- Produce findings with **stable ids** and a **document at the report path**, the absolute
+  path you give it. Nowhere else: a copy in the working tree breaks the freeze.
 - Report with `worker_done --outcome succeeded --report-path <file>`, not by printing.
 - Mark each finding **CONFIRMED** (read the source and reproduced the reasoning) or
   **PLAUSIBLE** (specific but with a named unverified step). A finding whose unverified

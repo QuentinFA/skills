@@ -51,7 +51,7 @@ git diff main...HEAD > "$SCRATCH/review.diff"   # or origin/main...HEAD, or a PR
 wc -l "$SCRATCH/review.diff"; git diff --name-only main...HEAD
 ```
 
-Use `$CLAUDE_JOB_DIR/tmp` if set, else a temp dir. Detect the stack now too (build files,
+`SCRATCH=$(mktemp -d)`; the diff is thrown away with the run. Detect the stack now too (build files,
 imports, `CLAUDE.md`) — several angles need it, and doing it once here saves every agent
 repeating it.
 
@@ -166,9 +166,22 @@ are reported, without waiting to be asked — a pasted list loses the root-cause
 confidence markers and the dropped claims the moment it leaves the terminal, which is
 exactly when someone else picks it up. See `references/handoff.md` for the structure.
 
-Name it for the change under review, take a path from the invocation args if one was given
-(`/review-angles tier 3 --md notes/review.md`), and say plainly whether it lands tracked or
-ignored. Skip it only if the user says to.
+Its path is fixed, not chosen per run. Write it to the repo's shared git directory, named
+for the target and the head sha it was reviewed at:
+
+```bash
+dir="$(git rev-parse --path-format=absolute --git-common-dir)/reviews"; mkdir -p "$dir"
+# "$dir/<target>@<sha7>.md" — <target> is the branch, or pr-<n>, with / turned into -
+```
+
+Git never lists it, every worktree of the repo sees the same file, and a later review at a
+new sha gets a new one. Report the absolute path at the end, since editors hide `.git/`. A
+path in the invocation args (`/review-angles tier 3 --md notes/review.md`) overrides this,
+and is the only way the document lands in the working tree. Skip the document only if the
+user says to.
+
+Before reporting, check `git status --porcelain` against the start of the run: a review adds
+nothing to the working tree. Move anything it did add.
 
 ## Adding an angle
 

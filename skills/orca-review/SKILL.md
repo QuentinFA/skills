@@ -42,7 +42,7 @@ your own judgement.
 
 Check before dispatching, and say so plainly if it does not hold:
 
-- **A findings document** at a path it can report back.
+- **A findings document**, written to the report path you give it (step 1).
 - **Individually addressable findings** — stable ids like `A1`, `B2`, or numbers. The
   debate is per finding; without ids there is nothing to argue about one at a time.
 
@@ -60,6 +60,19 @@ reading a moving target produces findings against code that no longer exists, an
 not be able to tell those from real ones. Note the HEAD sha; the findings are *about* that
 sha, and the document should say so.
 
+**Fix the report path; don't leave it to the reviewer.** It goes in the repo's shared git
+directory, named for the target and that sha:
+
+```bash
+dir="$(git rev-parse --path-format=absolute --git-common-dir)/reviews"; mkdir -p "$dir"
+# report path: "$dir/<target>@<sha7>.md" — <target> is the branch, or pr-<n>, with / turned into -
+```
+
+Git never lists it, so the freeze holds and nothing turns up in a diff. Every worktree of the
+repo sees it, including a reviewer placed in its own, and a later round at a new sha gets a new
+file. If the review skill's options already name where the document goes, use that path.
+Note `git status --porcelain` now; step 5 checks it again.
+
 If you must keep working, place the reviewer in its own worktree instead — see
 `references/placement.md`.
 
@@ -76,7 +89,7 @@ orca orchestration check --run <run_id> --json
 ```
 
 **The spec is where isolation is won or lost.** It must name the target, the review skill
-and its options, and the report path — and it must carry **none of your rationale**. Do not
+and its options, and the absolute report path from step 1 — and it must carry **none of your rationale**. Do not
 explain why the code is shaped the way it is, which findings you expect, or what a previous
 round said. Every sentence of justification you add is a sentence the reviewer will not
 independently re-derive. Give it the diff and the skill; nothing else.
@@ -194,8 +207,11 @@ Update the findings document in place so it reflects the debate — each finding
 accepted, refuted with the evidence that refuted it, already-fixed with its commit, or
 open-for-decision. A reader picking it up later needs the outcome, not just the claim.
 
-Then release the worker, close its terminal, and report: findings count, accepted, refuted,
-already-fixed, open.
+Compare `git status --porcelain` with step 1. The review adds nothing to the working tree: move
+anything it did add, and say so.
+
+Then release the worker, close its terminal, and report the document's absolute path (editors
+hide `.git/`) and the findings count: accepted, refuted, already-fixed, open.
 
 ```text
 orca orchestration worker-release --dispatch <dispatch_id> --json

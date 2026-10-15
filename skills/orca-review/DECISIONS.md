@@ -130,3 +130,25 @@ two until every id has an answer, and the bullet forbids picking the reply out b
 **Rejected:** a `--wait` on `status` messages: the stale `worker_done` and unacknowledgeable
 messages come back first, as the step-2 entry found for the report.
 
+
+## The coordinator fixes the report path, outside the working tree
+
+*2026-10-15 · accepted*
+
+**Issue:** the spec had to name a report path, but nothing said which. Coordinators invented one
+per run, usually in the working tree, so review documents landed in inconsistent places and
+showed up in `git status` and diffs. A report written into the tree also breaks the freeze
+from step 1.
+
+**Decision:** step 1 sets the report path to `<git-common-dir>/reviews/<target>@<sha7>.md`,
+unless the review skill's options already name one, and gives it to the reviewer as an absolute
+path. Step 5 checks `git status --porcelain` against step 1 and reports the document's path. The
+rule is written into this skill, not taken from the review skill: orca-review runs any review
+skill, including ones that say nothing about where their output goes.
+
+**Rejected:** a `.reviews/` directory in the working tree. When the reviewer is placed in its
+own worktree, the coordinator cannot see that worktree's copy, while the git common dir is
+shared by every worktree. Leaving the path to the review skill: that is how the inconsistency
+started.
+
+**Consequences:** editors hide `.git/`, so the path is reported at the end of every run.

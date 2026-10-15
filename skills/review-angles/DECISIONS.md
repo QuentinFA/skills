@@ -52,3 +52,25 @@ accepted because both new angles are fit-pruned away from any change without sha
 or stored data. The angles are unproven on a code diff; the first two code runs that
 include them should be checked for duplicates of cross-file-tracer and line-by-line.
 
+
+## The findings document has a fixed path outside the working tree
+
+*2026-10-15 · accepted*
+
+**Issue:** the skill said to "name it for the change under review" and to say whether it lands
+tracked or ignored, and `references/handoff.md` said to commit it or flag it as untracked. Each
+run picked its own location, usually somewhere in the working tree, so review documents landed
+in inconsistent places and showed up in `git status` and diffs.
+
+**Decision:** the document goes to `<git-common-dir>/reviews/<target>@<sha7>.md` unless the
+invocation names a path, and the run reports its absolute path. The scratch diff goes to
+`mktemp -d`. Before reporting, the run checks `git status --porcelain` against its start.
+
+**Rejected:** a `.reviews/` directory in the working tree, excluded through `.git/info/exclude`.
+It is easier to browse, but each worktree has its own copy, and `git clean -x` deletes it.
+`/tmp` and `$CLAUDE_JOB_DIR`: the first does not survive a reboot, and the second is private to
+one session, while the document is meant to outlive the session that wrote it.
+
+**Consequences:** editors hide `.git/`, so the path has to be reported every time. Deleting the
+clone deletes the reviews; a document worth keeping is passed with `--md` or committed on
+purpose.
